@@ -13,12 +13,17 @@ def main():
     
     # Create temporary directory and copy command to it
     temp_dir = tempfile.mkdtemp()
+    os.makedirs(os.path.join(temp_dir, "usr/local/bin"))
+    shutil.copy(command, os.path.join(temp_dir, "usr/local/bin"))
+    
+    # Run command inside container
+    completed_process = subprocess.run([os.path.join("/usr/local/bin", os.path.basename(command)), *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     shutil.copy(command, temp_dir)
     
     # Change root directory to temporary directory
     os.chroot(temp_dir)
     
-    completed_process = subprocess.run([command, *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # completed_process = subprocess.run([command, *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     
     stdout = completed_process.stdout.decode("utf-8").strip() # Remove extra newline character
     stderr = completed_process.stderr.decode("utf-8").strip() # Remove extra newline character
