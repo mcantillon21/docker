@@ -1,6 +1,8 @@
 import subprocess
 import sys
-
+import tempfile
+import shutil
+import os
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -8,6 +10,13 @@ def main():
     
     command = sys.argv[3]
     args = sys.argv[4:]
+    
+    # Create temporary directory and copy command to it
+    temp_dir = tempfile.mkdtemp()
+    shutil.copy(command, temp_dir)
+    
+    # Change root directory to temporary directory
+    os.chroot(temp_dir)
     
     completed_process = subprocess.run([command, *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     
