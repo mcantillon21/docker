@@ -11,9 +11,10 @@ def main():
     
     completed_process = subprocess.run([command, *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     
-    # Print stdout and stderr to parent process
-    print(completed_process.stdout.decode("utf-8"))
-    print(completed_process.stderr.decode("utf-8"), file=sys.stderr)
+    stdout = completed_process.stdout.decode("utf-8").strip() # Remove extra newline character
+    stderr = completed_process.stderr.decode("utf-8").strip() # Remove extra newline character
+    print(stdout)
+    print(stderr, file=sys.stderr)
     
     # completed_process = subprocess.run([command, *args], capture_output=True)
     # print(completed_process.stdout.decode("utf-8"))
