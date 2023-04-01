@@ -16,6 +16,9 @@ def main():
     print(stdout)
     print(stderr, file=sys.stderr)
     
+    exit_code = completed_process.returncode
+    sys.exit(exit_code)
+
     # completed_process = subprocess.run([command, *args], capture_output=True)
     # print(completed_process.stdout.decode("utf-8"))
 
