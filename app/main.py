@@ -37,7 +37,10 @@ def pull_layers(image_name, blobs, token, chroot_dir):
                 ff.extractall(chroot_dir)
 
 def run_command(chroot_dir, command):
-    os.makedirs(os.path.join(chroot_dir, os.path.dirname(command).strip("/")))
+    try:
+        os.makedirs(os.path.join(chroot_dir, os.path.dirname(command).strip("/")))
+    except FileExistsError:
+        pass  # directory already exists
     shutil.copy(command, os.path.join(chroot_dir, command.strip("/")))
     os.chroot(chroot_dir)
 
