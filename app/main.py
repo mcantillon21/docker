@@ -3,10 +3,9 @@ import sys
 import tempfile
 import shutil
 import os
+import ctypes
 
 def main():
-    # You can use print statements as follows for debugging, they'll be visible when running tests.
-    # print("Logs from your program will appear here!")
     
     command = sys.argv[3]
     args = sys.argv[4:]
@@ -15,7 +14,12 @@ def main():
         os.makedirs(os.path.join(tempDir, os.path.dirname(command).strip("/")))
         shutil.copy(command, os.path.join(tempDir, command.strip("/")))
         os.chroot(tempDir)
-        os.unshare(os.CLONE_NEWPID)
+        
+        # Use ctypes to call the unshare() function from the C library with the CLONE_NEWPID flag
+        libc = ctypes.CDLL(None)
+        CLONE_NEWPID = 0x20000000
+        libc.unshare.argtypes = [ctypes.c_int]
+        libc.unshare(CLONE_NEWPID)
 
         completed_process = subprocess.run([command, *args])
         exit(completed_process.returncode)
