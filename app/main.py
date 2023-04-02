@@ -1,18 +1,19 @@
 import os
 import subprocess
 import tempfile
-import shutil
 import ctypes
 import sys
 from urllib import request
 import json
 import tarfile
 
+# retrieve authentication token from Docker, pulling most recent image
 def authenticate(image_name):
     url = f'https://auth.docker.io/token?service=registry.docker.io&scope=repository:library/{image_name}:pull'
     resp = request.urlopen(request.Request(url, method="GET"))
     return json.loads(resp.read(8096).decode("utf-8"))["token"]
 
+# lists all the layers that make up an image, returns as blobs
 def fetch_manifest(image_name, token):
     url = f'https://registry.hub.docker.com/v2/library/{image_name}/manifests/latest'
     headers = {'Authorization': f'Bearer {token}'}
@@ -22,6 +23,7 @@ def fetch_manifest(image_name, token):
     blobs = [layer["blobSum"] for layer in resp["fsLayers"]]
     return blobs
 
+# download each layer and place into temporary directory
 def pull_layers(image_name, blobs, token, chroot_dir):
     for blob in blobs:
         url = f'https://registry.hub.docker.com/v2/library/{image_name}/blobs/{blob}'
@@ -36,7 +38,7 @@ def pull_layers(image_name, blobs, token, chroot_dir):
                 ff = tarfile.open(os.path.join(temp_dir, file))
                 ff.extractall(chroot_dir)
 
-
+# runs the Docker command after Docker image is extracted
 def mydocker_run(image_name, command):
     with tempfile.TemporaryDirectory() as tmp_dir:
         token = authenticate(image_name)
