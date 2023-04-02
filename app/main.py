@@ -44,17 +44,17 @@ def mydocker_run(image_name, command):
         pull_layers(image_name, blobs, token, tmp_dir)
         command = command[command.rfind("/") + 1 :]
 
-    # Use ctypes to call the unshare() function from the C library with the CLONE_NEWPID flag
-    libc = ctypes.CDLL(None)
-    CLONE_NEWPID = 0x20000000
-    libc.unshare.argtypes = [ctypes.c_int]
-    libc.unshare(CLONE_NEWPID)
-    os.chroot(tmp_dir)
+        # Use ctypes to call the unshare() function from the C library with the CLONE_NEWPID flag
+        libc = ctypes.CDLL(None)
+        CLONE_NEWPID = 0x20000000
+        libc.unshare.argtypes = [ctypes.c_int]
+        libc.unshare(CLONE_NEWPID)
+        os.chroot(tmp_dir)
 
-    completed_process = subprocess.run([command,  *args], capture_output=True)
-    sys.stdout.buffer.write(completed_process.stdout)
-    sys.stderr.buffer.write(completed_process.stderr)
-    exit(completed_process.returncode)
+        completed_process = subprocess.run([command,  *args], capture_output=True)
+        sys.stdout.buffer.write(completed_process.stdout)
+        sys.stderr.buffer.write(completed_process.stderr)
+        exit(completed_process.returncode)
 
 if __name__ == '__main__':
     image_name, command, args = sys.argv[2], sys.argv[3], sys.argv[4:]
