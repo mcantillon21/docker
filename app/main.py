@@ -36,12 +36,12 @@ def pull_layers(image_name, blobs, token, chroot_dir):
                 ff = tarfile.open(os.path.join(temp_dir, file))
                 ff.extractall(chroot_dir)
 
-def run_command(chroot_dir, command):
-    dest_path = os.path.join(chroot_dir, command.strip("/"))
+
+def mydocker_run(image_name, command):
     with tempfile.TemporaryDirectory() as tmp_dir:
         token = authenticate(image_name)
         blobs = fetch_manifest(image_name, token)
-        pull_layers(image_name, blobs, token, chroot_dir)
+        pull_layers(image_name, blobs, token, tmp_dir)
         command = command[command.rfind("/") + 1 :]
 
     # Use ctypes to call the unshare() function from the C library with the CLONE_NEWPID flag
@@ -49,19 +49,12 @@ def run_command(chroot_dir, command):
     CLONE_NEWPID = 0x20000000
     libc.unshare.argtypes = [ctypes.c_int]
     libc.unshare(CLONE_NEWPID)
-    os.chroot(chroot_dir)
+    os.chroot(tmp_dir)
 
-    completed_process = subprocess.run([command])
+    completed_process = subprocess.run([command,  *args], capture_output=True)
     sys.stdout.buffer.write(completed_process.stdout)
     sys.stderr.buffer.write(completed_process.stderr)
     exit(completed_process.returncode)
-
-def mydocker_run(image_name, command):
-    chroot_dir = tempfile.mkdtemp()
-    # token = authenticate(image_name)
-    # blobs = fetch_manifest(image_name, token)
-    # pull_layers(image_name, blobs, token, chroot_dir)
-    run_command(chroot_dir, command)
 
 if __name__ == '__main__':
     image_name, command, args = sys.argv[2], sys.argv[3], sys.argv[4:]
