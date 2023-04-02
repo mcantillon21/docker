@@ -37,11 +37,10 @@ def pull_layers(image_name, blobs, token, chroot_dir):
                 ff.extractall(chroot_dir)
 
 def run_command(chroot_dir, command):
-    try:
-        os.makedirs(os.path.join(chroot_dir, os.path.dirname(command).strip("/")))
-    except FileExistsError:
-        pass  # directory already exists
-    shutil.copy(command, os.path.join(chroot_dir, command.strip("/")))
+    dest_path = os.path.join(chroot_dir, command.strip("/"))
+    if not os.path.samefile(command, dest_path):
+        os.makedirs(os.path.join(chroot_dir, os.path.dirname(command).strip("/")), exist_ok=True)
+        shutil.copy(command, dest_path)
     os.chroot(chroot_dir)
 
     # Use ctypes to call the unshare() function from the C library with the CLONE_NEWPID flag
