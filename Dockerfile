@@ -1,7 +1,6 @@
 FROM python:3.11-alpine
 
-RUN apk add curl
-RUN pip install requests
+RUN apk add curl &&  pip3 install requests
 
 # Download docker-explorer
 ARG docker_explorer_version=v18
