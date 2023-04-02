@@ -51,5 +51,6 @@ def mydocker_run(image_name, command):
     run_command(chroot_dir, command)
 
 if __name__ == '__main__':
+    import requests
     image_name, command = sys.argv[1], sys.argv[2:]
     mydocker_run(image_name, command)
