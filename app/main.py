@@ -7,13 +7,11 @@ import sys
 from urllib import request
 import json
 import tarfile
-import requests
 
 def authenticate(image_name):
     url = f'https://auth.docker.io/token?service=registry.docker.io&scope=repository:library/{image_name}:pull'
-    response = requests.get(url)
-    token = response.json()['access_token']
-    return token
+    resp = request.urlopen(request.Request(url, method="GET"))
+    return json.loads(resp.read(8096).decode("utf-8"))["token"]
 
 def fetch_manifest(image_name, token):
     url = f'https://registry.hub.docker.com/v2/library/{image_name}/manifests/latest'
