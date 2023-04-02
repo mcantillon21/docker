@@ -61,5 +61,4 @@ def mydocker_run(image_name, command):
 
 if __name__ == '__main__':
     image_name, command, args = sys.argv[2], sys.argv[3], sys.argv[4:]
-    print(image_name, "IMAGE_NAME", command, "COMMAND")
     mydocker_run(image_name, command)
